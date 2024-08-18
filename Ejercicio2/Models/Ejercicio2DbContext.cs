@@ -17,11 +17,22 @@ public partial class Ejercicio2DbContext : DbContext
 
     public virtual DbSet<Cuentahabiente> Cuentahabientes { get; set; }
 
+    public virtual DbSet<Denominacione> Denominaciones { get; set; }
+
     public virtual DbSet<Transaccione> Transacciones { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-8J7LS49;Database=BancoDB;Trusted_Connection=True;TrustServerCertificate=True");
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,6 +47,13 @@ public partial class Ejercicio2DbContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.NombreCompleto).HasMaxLength(100);
             entity.Property(e => e.Saldo).HasColumnType("decimal(18, 2)");
+        });
+
+        modelBuilder.Entity<Denominacione>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Denomina__3214EC072B72FC6F");
+
+            entity.Property(e => e.Nombre).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Transaccione>(entity =>

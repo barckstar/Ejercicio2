@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Ejercicio2.Models;
 
@@ -15,5 +16,6 @@ public partial class Transaccione
 
     public DateTime FechaTransaccion { get; set; }
 
+    [JsonIgnore]
     public virtual Cuentahabiente Cuentahabiente { get; set; } = null!;
 }

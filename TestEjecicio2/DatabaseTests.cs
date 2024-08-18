@@ -1,39 +1,91 @@
 using Ejercicio2.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace TestEjecicio2
 {
     public class DatabaseTests
     {
-        private DbContextOptions<Ejercicio2DbContext> _options;
+        private DbContextOptions<Ejercicio2DbContext> _options, _invalid;
 
         public DatabaseTests()
         {
             _options = new DbContextOptionsBuilder<Ejercicio2DbContext>()
-                .UseSqlServer("Server=DESKTOP-8J7LS49;Database=EmpresaDB;Trusted_Connection=True;TrustServerCertificate=True;")
+                .UseSqlServer("Server=DESKTOP-8J7LS49;Database=BancoDB;Trusted_Connection=True;TrustServerCertificate=True;")
+                .Options;
+
+            _invalid = new DbContextOptionsBuilder<Ejercicio2DbContext>()
+                .UseSqlServer("Server=INVALID_SERVER;Database=INVALID_DB;Trusted_Connection=True;TrustServerCertificate=True;")
                 .Options;
         }
 
+
         [Fact]
-        public void PuedeConectarDatabaseTablaDepartamentos()
+        public void Puede_Conectar_Database_TablaCuentahabientes()
         {
-            using (var context = new Ejercicio2DbContext(_options))
+            // Arrange
+            using var context = new Ejercicio2DbContext(_options);
+
+            // Act
+            var cuentahabientes = context.Cuentahabientes.ToList();
+
+            // Assert
+            Assert.NotNull(cuentahabientes);
+            Assert.True(cuentahabientes.Count > 0, "No se encontraron Cuentahabientes en la base de datos.");
+        }
+
+
+        [Fact]
+        public void Puede_Conectar_Database_TablaTransacciones()
+        {
+            // Arrange
+            using var context = new Ejercicio2DbContext(_options);
+
+            // Act
+            List<Transaccione> transacciones;
+            try
             {
-                var cuentahabiente = context.Cuentahabientes.ToList();
-                Assert.NotNull(cuentahabiente);
-                Assert.True(cuentahabiente.Count > 0, "No se encontraron departamentos en la base de datos.");
+                transacciones = context.Transacciones.ToList();
             }
+            catch (Exception ex)
+            {
+                Assert.True(false, $"Error al acceder a la tabla Transacciones: {ex.Message}");
+                return;
+            }
+
+            // Assert
+            Assert.NotNull(transacciones);
+            Assert.True(transacciones.Count >= 0, "No se encontraron Transacciones en la base de datos.");
         }
 
         [Fact]
-        public void PuedeConectarDatabaseTablaAsociado()
+        public void Puede_Conectar_Database_TablaDenominaciones()
         {
-            using (var context = new Ejercicio2DbContext(_options))
+            // Arrange
+            using var context = new Ejercicio2DbContext(_options);
+
+            // Act
+            var denominaciones = context.Denominaciones.ToList();
+
+            // Assert
+            Assert.NotNull(denominaciones);
+            Assert.True(denominaciones.Count >= 0, "No se encontraron Denominaciones en la base de datos.");
+        }
+
+        [Fact]
+        public void Conectar_BaseDatos_Fallo()
+        {
+            // Arrange
+            var exception = Record.Exception(() =>
             {
-                var transaccione = context.Transacciones.ToList();
-                Assert.NotNull(transaccione);
-                Assert.True(transaccione.Count >= 0, "No se encontraron Asociado en la base de datos.");
-            }
+                using var context = new Ejercicio2DbContext(_invalid);
+                // Act
+                var denominaciones = context.Denominaciones.ToList();
+            });
+
+            // Assert
+            Assert.NotNull(exception);
+            Assert.IsType<SqlException>(exception);
         }
     }
 }
