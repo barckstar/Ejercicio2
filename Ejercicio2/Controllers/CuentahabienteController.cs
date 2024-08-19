@@ -1,18 +1,17 @@
-﻿using Ejercicio2.Models;
-using Ejercicio2.Services;
+﻿using Ejercicio2.Interfaces;
+using Ejercicio2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ejercicio2.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CuentahabienteController : ControllerBase
     {
-        private readonly CuentahabienteService _cuentahabienteService;
+        private readonly ICuentahabienteService _cuentahabienteService;
 
-        public CuentahabienteController(CuentahabienteService cuentahabienteService)
+        public CuentahabienteController(ICuentahabienteService cuentahabienteService)
         {
             _cuentahabienteService = cuentahabienteService;
         }

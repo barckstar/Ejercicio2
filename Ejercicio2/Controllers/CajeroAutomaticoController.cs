@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Ejercicio2.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Ejercicio2.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class CajeroAutomaticoController : ControllerBase
     {
-        private readonly CajeroAutomaticoService _cajeroAutomaticoService;
+        private readonly ICajeroAutomaticoService _cajeroAutomaticoService;
 
-        public CajeroAutomaticoController(CajeroAutomaticoService cajeroAutomaticoService)
+        public CajeroAutomaticoController(ICajeroAutomaticoService cajeroAutomaticoService)
         {
             _cajeroAutomaticoService = cajeroAutomaticoService;
         }
@@ -16,13 +17,12 @@ namespace Ejercicio2.Controllers
         [HttpPost("retirar")]
         public async Task<IActionResult> RetirarDinero(int cuentahabienteId, decimal cantidad)
         {
-            var (success, message) = await _cajeroAutomaticoService.RetirarDineroAsync(cuentahabienteId, cantidad);
-            if (!success)
+            var (exito, mensaje) = await _cajeroAutomaticoService.RetirarDineroAsync(cuentahabienteId, cantidad);
+            if (!exito)
             {
-                return BadRequest(new { mensaje = message });
+                return BadRequest(new { Mensaje = mensaje });
             }
-
-            return Ok(new { mensaje = "Retiro exitoso", detalle = message });
+            return Ok(new { Mensaje = mensaje });
         }
     }
 }

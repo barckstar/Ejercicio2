@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using Ejercicio2.Controllers;
+using Ejercicio2.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -69,6 +69,11 @@ builder.Services.AddDbContext<Ejercicio2DbContext>(options =>
 // Registra los servicios
 builder.Services.AddScoped<CajeroAutomaticoService>();
 builder.Services.AddScoped<CuentahabienteService>();
+
+//Registra las Interfaces
+builder.Services.AddScoped<ICuentahabienteService, CuentahabienteService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICajeroAutomaticoService, CajeroAutomaticoService>();
 
 // Configura opciones JSON
 builder.Services.AddControllers().AddJsonOptions(options =>

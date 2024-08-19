@@ -41,17 +41,8 @@ namespace TestEjecicio2
             // Arrange
             using var context = new Ejercicio2DbContext(_options);
 
-            // Act
-            List<Transaccione> transacciones;
-            try
-            {
-                transacciones = context.Transacciones.ToList();
-            }
-            catch (Exception ex)
-            {
-                Assert.True(false, $"Error al acceder a la tabla Transacciones: {ex.Message}");
-                return;
-            }
+            // Act            
+            var transacciones = context.Transacciones.ToList();
 
             // Assert
             Assert.NotNull(transacciones);

@@ -1,9 +1,10 @@
-﻿using Ejercicio2.Models;
+﻿using Ejercicio2.Interfaces;
+using Ejercicio2.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ejercicio2.Services
 {
-    public class CuentahabienteService
+    public class CuentahabienteService : ICuentahabienteService
     {
         private readonly Ejercicio2DbContext _context;
 
@@ -12,15 +13,9 @@ namespace Ejercicio2.Services
             _context = context;
         }
 
-        public async Task<List<Cuentahabiente>> GetAllAsync()
-        {
-            return await _context.Cuentahabientes.ToListAsync();
-        }
+        public async Task<IEnumerable<Cuentahabiente>> GetAllAsync() => await _context.Cuentahabientes.ToListAsync();        
 
-        public async Task<Cuentahabiente?> GetByIdAsync(int id)
-        {
-            return await _context.Cuentahabientes.FindAsync(id);
-        }
+        public async Task<Cuentahabiente> GetByIdAsync(int id) => await _context.Cuentahabientes.FindAsync(id);
 
         public async Task<Cuentahabiente> CreateAsync(Cuentahabiente cuentahabiente)
         {
@@ -44,5 +39,4 @@ namespace Ejercicio2.Services
             return await _context.SaveChangesAsync() > 0;
         }
     }
-
 }

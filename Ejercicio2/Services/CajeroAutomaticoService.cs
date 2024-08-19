@@ -1,16 +1,15 @@
-﻿using Ejercicio2.Models;
-using Ejercicio2.Services;
+﻿using Ejercicio2.Interfaces;
+using Ejercicio2.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ejercicio2.Controllers
+namespace Ejercicio2.Services
 {
-
-    public class CajeroAutomaticoService
+    public class CajeroAutomaticoService : ICajeroAutomaticoService
     {
-        private readonly CuentahabienteService _cuentahabienteService;
+        private readonly ICuentahabienteService _cuentahabienteService;
         private readonly Ejercicio2DbContext _context;
 
-        public CajeroAutomaticoService(CuentahabienteService cuentahabienteService, Ejercicio2DbContext context)
+        public CajeroAutomaticoService(ICuentahabienteService cuentahabienteService, Ejercicio2DbContext context)
         {
             _cuentahabienteService = cuentahabienteService;
             _context = context;
@@ -37,14 +36,22 @@ namespace Ejercicio2.Controllers
         public async Task<(bool, string)> RetirarDineroAsync(int cuentahabienteId, decimal cantidad)
         {
             var cuentahabiente = await _cuentahabienteService.GetByIdAsync(cuentahabienteId);
-            if (cuentahabiente == null) return (false, "Cuentahabiente no encontrado.");
+            if (cuentahabiente == null)
+            {
+                return (false, "Cuentahabiente no encontrado.");
+            };
 
-            if (cuentahabiente.Saldo < cantidad) return (false, "Saldo insuficiente.");
+            if (cuentahabiente.Saldo < cantidad)
+            {
+                return (false, "Saldo insuficiente.");
+            };
 
             cuentahabiente.Saldo -= cantidad;
             var result = await _cuentahabienteService.UpdateAsync(cuentahabiente);
-            if (!result) return (false, "Error al actualizar el saldo.");
-
+            if (!result)
+            {
+                return (false, "Error al actualizar el saldo.");
+            };
 
             _context.Transacciones.Add(new Transaccione
             {
@@ -60,6 +67,4 @@ namespace Ejercicio2.Controllers
             return (true, string.Join(", ", denominaciones.Select(d => $"{d.Key}: {d.Value}")));
         }
     }
-
-
 }
