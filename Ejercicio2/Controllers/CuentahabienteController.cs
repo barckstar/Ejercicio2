@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Ejercicio2.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CuentahabienteController : ControllerBase

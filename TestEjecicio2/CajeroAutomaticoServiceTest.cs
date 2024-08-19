@@ -17,21 +17,21 @@ namespace TestEjecicio2
         }
 
         [Fact]
-        public async Task Retirar_Dinero_Retiro_Exitoso()
+        public async Task RetirarDineroAsync_Retiro_Exitoso()
         {
             // Arrange
             var cuentahabienteId = 1;
-            var cantidad = 100m;
+            var cantidad = 100;
 
             var mockCuentahabienteService = new Mock<ICuentahabienteService>();
             mockCuentahabienteService.Setup(s => s.GetByIdAsync(cuentahabienteId))
-                .ReturnsAsync(new Cuentahabiente { Id = cuentahabienteId, Saldo = 200m });
+                .ReturnsAsync(new Cuentahabiente { Id = cuentahabienteId, Saldo = 200 });
 
             mockCuentahabienteService.Setup(s => s.UpdateAsync(It.IsAny<Cuentahabiente>()))
                 .ReturnsAsync(true);
 
             using var context = new Ejercicio2DbContext(GetInMemoryDbOptions("TestDatabase1"));
-            Seed(context); // Inicializar datos de prueba
+            Seed(context);
             var service = new CajeroAutomaticoService(mockCuentahabienteService.Object, context);
 
             // Act
@@ -46,7 +46,7 @@ namespace TestEjecicio2
         }
 
         [Fact]
-        public async Task Retirar_Dinero_Saldo_Insuficiente()
+        public async Task RetirarDineroAsync_Saldo_Insuficiente()
         {
             // Arrange
             var cuentahabienteId = 1;
@@ -54,13 +54,13 @@ namespace TestEjecicio2
 
             var mockCuentahabienteService = new Mock<ICuentahabienteService>();
             mockCuentahabienteService.Setup(s => s.GetByIdAsync(cuentahabienteId))
-                .ReturnsAsync(new Cuentahabiente { Id = cuentahabienteId, Saldo = 200m });
+                .ReturnsAsync(new Cuentahabiente { Id = cuentahabienteId, Saldo = 200 });
 
             mockCuentahabienteService.Setup(s => s.UpdateAsync(It.IsAny<Cuentahabiente>()))
                 .ReturnsAsync(true);
 
             using var context = new Ejercicio2DbContext(GetInMemoryDbOptions("TestDatabase2"));
-            Seed(context); // Inicializar datos de prueba
+            Seed(context);
             var service = new CajeroAutomaticoService(mockCuentahabienteService.Object, context);
 
             // Act
@@ -73,18 +73,18 @@ namespace TestEjecicio2
         }
 
         [Fact]
-        public async Task Retirar_Dinero_Cuentahabiente_No_Encontrado()
+        public async Task RetirarDineroAsync_Cuentahabiente_No_Encontrado()
         {
             // Arrange
             var cuentahabienteId = 1;
             var cantidad = 100m;
 
             var mockCuentahabienteService = new Mock<ICuentahabienteService>();
-            _ = mockCuentahabienteService.Setup(s => s.GetByIdAsync(cuentahabienteId))
-                .ReturnsAsync((Cuentahabiente)null);
+            mockCuentahabienteService.Setup(s => s.GetByIdAsync(cuentahabienteId))
+                .ReturnsAsync(null as Cuentahabiente);
 
             using var context = new Ejercicio2DbContext(GetInMemoryDbOptions("TestDatabase3"));
-            Seed(context); // Inicializar datos de prueba
+            Seed(context);
             var service = new CajeroAutomaticoService(mockCuentahabienteService.Object, context);
 
             // Act
@@ -96,10 +96,36 @@ namespace TestEjecicio2
             Assert.Empty(context.Transacciones);
         }
 
+        [Fact]
+        public async Task RetirarDineroAsync_Error_Al_Actualizar_Saldo()
+        {
+            // Arrange
+            var cuentahabienteId = 1;
+            var cantidad = 100m;
+
+            var mockCuentahabienteService = new Mock<ICuentahabienteService>();
+            mockCuentahabienteService.Setup(s => s.GetByIdAsync(cuentahabienteId))
+                .ReturnsAsync(new Cuentahabiente { Id = cuentahabienteId, Saldo = 200 });
+
+            mockCuentahabienteService.Setup(s => s.UpdateAsync(It.IsAny<Cuentahabiente>()))
+                .ReturnsAsync(false);
+
+            using var context = new Ejercicio2DbContext(GetInMemoryDbOptions("TestDatabase4"));
+            Seed(context);
+            var service = new CajeroAutomaticoService(mockCuentahabienteService.Object, context);
+
+            // Act
+            var result = await service.RetirarDineroAsync(cuentahabienteId, cantidad);
+
+            // Assert
+            Assert.False(result.Item1, "El retiro debería fallar si hay un error al actualizar el saldo.");
+            Assert.Equal("Error al actualizar el saldo.", result.Item2);
+            Assert.Empty(context.Transacciones);
+        }
+
+
         private void Seed(Ejercicio2DbContext context)
         {
-            if (context.Denominaciones.Any()) return; // Ya se han inicializado
-
             context.Denominaciones.AddRange(new[]
             {
                 new Denominacione { Nombre = "Billete de 100", Valor = 100 },

@@ -20,7 +20,7 @@ namespace Ejercicio2.Services
             var denominaciones = await _context.Denominaciones.OrderByDescending(d => d.Valor).ToListAsync();
             var resultado = new Dictionary<string, int>();
 
-            foreach (var denominacion in denominaciones)
+            denominaciones.ForEach(denominacion =>
             {
                 int cantidadBilletesOMonedas = (int)(cantidad / denominacion.Valor);
                 if (cantidadBilletesOMonedas > 0)
@@ -28,7 +28,7 @@ namespace Ejercicio2.Services
                     resultado[denominacion.Nombre] = cantidadBilletesOMonedas;
                     cantidad -= cantidadBilletesOMonedas * denominacion.Valor;
                 }
-            }
+            });
 
             return resultado;
         }
