@@ -19,7 +19,7 @@ namespace TestEjecicio2
         }
 
         [Fact]
-        public async Task RetirarDinero_ReturnsOk_WhenRetiroExitoso()
+        public async Task RetirarDinero_ReturnsOk_RetiroExitoso()
         {
             // Arrange
             var cuentahabienteId = 1;
@@ -38,7 +38,7 @@ namespace TestEjecicio2
         }
 
         [Fact]
-        public async Task RetirarDinero_ReturnsBadRequest_WhenRetiroFalla()
+        public async Task RetirarDinero_ReturnsBadRequest_RetiroFalla()
         {
             // Arrange
             var cuentahabienteId = 1;
